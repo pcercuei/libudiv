@@ -17,7 +17,7 @@ typedef struct {
     unsigned int m;
 } udiv_t;
 
-udiv_t udiv_set_divider(unsigned int div)
+static inline udiv_t udiv_set_divider(unsigned int div)
 {
     unsigned int p = 31 - clz32(div) + !!(div & (div - 1));
     unsigned int m = ((0x1ull << (32 + p)) + div - 1) / (unsigned long long)div;
@@ -25,7 +25,7 @@ udiv_t udiv_set_divider(unsigned int div)
     return (udiv_t){ .p = p, .m = m, };
 }
 
-unsigned int udiv_divide(unsigned int val, udiv_t udiv)
+static inline unsigned int udiv_divide(unsigned int val, udiv_t udiv)
 {
     unsigned int q = ((unsigned long long)udiv.m * val) >> 32;
     unsigned int t = ((val - q) >> 1) + q;
