@@ -21,7 +21,8 @@ typedef struct {
 	(31 - clz32(div) + !!((div) & ((div) - 1)))
 
 #define UDIV_M(div, p) \
-	(unsigned int)(((0x1ull << (32 + (p))) + (div) - 1) / (unsigned long long)(div))
+	((p) == 0x20 ? (div) : \
+	 (unsigned int)(((0x1ull << (32 + (p))) + (div) - 1) / (unsigned long long)(div)))
 
 
 static inline udiv_t __udiv_set_divider(unsigned int div)
@@ -44,6 +45,12 @@ static inline udiv_t __udiv_set_divider(unsigned int div)
 static inline unsigned int udiv_divide(unsigned int val, udiv_t udiv)
 {
 	unsigned int q, t;
+
+	/* Divide by 0x80000001 or higher: the algorithm does not work, so
+	 * udiv.m contains the full divider value, and we just need to check
+	 * if the dividend is >= the divider. */
+	if (udiv.p == 0x20)
+		return val >= udiv.m;
 
 	/* Divide by 1: the algorithm does not work, so handle this special case. */
 	if (udiv.m == 0 && udiv.p == 0)
