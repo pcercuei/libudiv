@@ -8,8 +8,10 @@
 
 #ifdef _MSC_BUILD
 #	define clz32(x)		_lzcnt_u32(x)
+#	define unlikely(x)	(x)
 #else
 #	define clz32(x)		__builtin_clz(x)
+#	define unlikely(x)	__builtin_expect(!!(x), 0)
 #endif
 
 typedef struct {
@@ -49,11 +51,11 @@ static inline unsigned int udiv_divide(unsigned int val, udiv_t udiv)
 	/* Divide by 0x80000001 or higher: the algorithm does not work, so
 	 * udiv.m contains the full divider value, and we just need to check
 	 * if the dividend is >= the divider. */
-	if (udiv.p == 0x20)
+	if (unlikely(udiv.p == 0x20))
 		return val >= udiv.m;
 
 	/* Divide by 1: the algorithm does not work, so handle this special case. */
-	if (udiv.m == 0 && udiv.p == 0)
+	if (unlikely(udiv.m == 0 && udiv.p == 0))
 		return val;
 
 	q = ((unsigned long long)udiv.m * val) >> 32;
