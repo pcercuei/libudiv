@@ -43,8 +43,14 @@ static inline udiv_t __udiv_set_divider(unsigned int div)
 
 static inline unsigned int udiv_divide(unsigned int val, udiv_t udiv)
 {
-	unsigned int q = ((unsigned long long)udiv.m * val) >> 32;
-	unsigned int t = ((val - q) >> 1) + q;
+	unsigned int q, t;
+
+	/* Divide by 1: the algorithm does not work, so handle this special case. */
+	if (udiv.m == 0 && udiv.p == 0)
+		return val;
+
+	q = ((unsigned long long)udiv.m * val) >> 32;
+	t = ((val - q) >> 1) + q;
 
 	return t >> (udiv.p - 1);
 }
