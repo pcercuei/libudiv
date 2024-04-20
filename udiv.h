@@ -13,8 +13,8 @@
 #endif
 
 typedef struct {
-    unsigned int p;
-    unsigned int m;
+	unsigned int p;
+	unsigned int m;
 } udiv_t;
 
 #define UDIV_P(div) \
@@ -26,10 +26,10 @@ typedef struct {
 
 static inline udiv_t __udiv_set_divider(unsigned int div)
 {
-    unsigned int p = UDIV_P(div);
-    unsigned int m = UDIV_M(div, p);
+	unsigned int p = UDIV_P(div);
+	unsigned int m = UDIV_M(div, p);
 
-    return (udiv_t){ .p = p, .m = m, };
+	return (udiv_t){ .p = p, .m = m, };
 }
 
 #ifdef _MSC_BUILD
@@ -43,10 +43,10 @@ static inline udiv_t __udiv_set_divider(unsigned int div)
 
 static inline unsigned int udiv_divide(unsigned int val, udiv_t udiv)
 {
-    unsigned int q = ((unsigned long long)udiv.m * val) >> 32;
-    unsigned int t = ((val - q) >> 1) + q;
+	unsigned int q = ((unsigned long long)udiv.m * val) >> 32;
+	unsigned int t = ((val - q) >> 1) + q;
 
-    return t >> (udiv.p - 1);
+	return t >> (udiv.p - 1);
 }
 
 #endif /* __LIBUDIV_H__ */
