@@ -44,10 +44,20 @@ static inline udiv_t __udiv_set_divider(unsigned int div)
 			      __udiv_set_divider(div))
 #endif
 
-static inline unsigned int udiv_divide(unsigned int val, udiv_t udiv)
+static inline unsigned int udiv_divide_fast(unsigned int val, udiv_t udiv)
 {
 	unsigned int q, t;
 
+	/* This algorithm only works for values 1 < div < 0x80000001. */
+
+	q = ((unsigned long long)udiv.m * val) >> 32;
+	t = ((val - q) >> 1) + q;
+
+	return t >> (udiv.p - 1);
+}
+
+static inline unsigned int udiv_divide(unsigned int val, udiv_t udiv)
+{
 	/* Divide by 0x80000001 or higher: the algorithm does not work, so
 	 * udiv.m contains the full divider value, and we just need to check
 	 * if the dividend is >= the divider. */
@@ -58,10 +68,7 @@ static inline unsigned int udiv_divide(unsigned int val, udiv_t udiv)
 	if (unlikely(udiv.m == 0 && udiv.p == 0))
 		return val;
 
-	q = ((unsigned long long)udiv.m * val) >> 32;
-	t = ((val - q) >> 1) + q;
-
-	return t >> (udiv.p - 1);
+	return udiv_divide_fast(val, udiv);
 }
 
 #endif /* __LIBUDIV_H__ */
